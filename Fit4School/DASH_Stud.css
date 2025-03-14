@@ -1,0 +1,484 @@
+body {
+    background-color: #16423C;
+    overflow: hidden;
+    margin: 0%;
+    
+}
+
+.row {
+    display: flex;
+    flex-direction: row;
+}
+
+
+
+
+/*LEFT SIDE*/
+.col-lg-2 {
+    display: flex;
+    flex-direction: column;
+
+}
+
+.Logo {
+    display: flex;
+    align-items: center;
+    margin: 20px;
+    margin-bottom: 30%;
+}
+
+.Logo_txt {
+    font-weight: bold;
+    color: #E9EFEC;
+    font-size: 20px;
+}
+
+.sm-cont > div {
+    margin-left: 5%;
+}
+
+.sm-cont > div > button {
+    margin-bottom: 2%;
+}
+
+.SD_btn {
+    color: white;
+    font-weight: bold;
+    background-color: #143833;
+    border: none;
+    padding: 10%;
+    border-radius: 5%;
+}
+
+
+.SD_btn, .VS_btn, .App_btn, .TH_btn {
+    display: flex;
+    align-items: center;
+    justify-content: start;
+    gap: 5px;
+    color: white;
+    font-weight: bold;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    width: 100%;
+    text-align: left;
+    font-size: 14px;
+}
+
+
+.VS_btn, .App_btn, .TH_btn {
+    background-color: #16423C;
+    color: #6A9C89;
+    font-weight: bold;
+    border: none;
+    padding: 10%;
+    border-radius: 5%;
+}
+
+.VS_btn:hover {
+    color: white;
+    background-color: #143833;
+} 
+.VS_btn:hover > .vs_icon{
+    content: url('ruler.png');
+}
+
+
+.App_btn:hover {
+    color: white;
+    background-color: #143833;
+}
+.App_btn:hover > .app_icon{
+    content: url('appointment.png');
+}
+
+
+.TH_btn:hover {
+    color: white;
+    background-color: #143833;
+}
+.TH_btn:hover > .th_icon{
+    content: url('clock.png');
+}
+
+
+.lm-cont {
+    margin-top: 30%;
+    font-weight: bold;
+}
+
+.lm-cont > div {
+    margin-bottom: 15%;
+    margin-top: 15%;
+    margin-left: 15%;
+}
+
+a {
+    color: white;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #6A9C89;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+a:active {
+    color: #C4DAD2;
+    background-color: transparent;
+    text-decoration: none;
+}
+
+h5 {
+    color: #16423C;
+    font-family: Candara;
+    font-size: 22px;
+    font-weight: bold;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 15px;
+    border: 1px solid #16423C;
+    padding: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border: none;
+    transform: translateY(95%);
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-footer {
+    border-top: none;
+}
+
+.modal-body {
+    color: #757575;
+    font-size: 14px;
+}
+
+.btn {
+   background-color: #E5E5E5; 
+   color: #16423C; 
+   border-radius: 20px; 
+   width: 80px;
+   font-weight: bold;
+   font-family: Candara;
+}
+
+
+/*RIGHT SIDE*/
+
+.col-lg-10 {
+    background-color: #E9EFEC;
+    margin: 2%;
+    border-radius: 20px;
+    padding-bottom: 3%;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 6px;
+    height: 600px;
+    width: 100%;
+}
+
+
+.upm-cont {
+    display: flex;
+    flex-direction: nowrap;
+    justify-content: space-between;
+}
+
+.upm-cont > .dp {
+    padding: 15px;
+}
+
+.dp {
+    position: relative; 
+    display: inline-block;
+}
+
+
+
+
+/* Popup Content */
+.popup-content {
+    display: none; /* Initially hidden */
+    position: absolute;
+    top: 50px;
+    right: -10px;
+    width: 490px;
+    background-color: #E9EFEC;
+    border: 25px solid #6A9C89;
+    border-radius: 15px;
+    padding: 20px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.popup-content h3 {
+    font-family: Candara, sans-serif;
+    color: #16423C;
+    font-size: 20px;
+    text-align: left;
+    margin-bottom: 20px;
+}
+
+
+.popup-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('bg_login.jpg') center/cover no-repeat;
+    opacity: 0.2; /* Transparent effect */
+    z-index: -1;
+}
+
+
+.popup-left {
+    width: 35%;
+    float: left;
+    text-align: center;
+}
+
+.popup-left .profile-circle {
+     width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #A1D3CA;
+    background-image: url('user.png');
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #16423C;
+    margin-bottom: 10px;
+}
+
+.popup-info {
+    float: left;
+    width: 60%;
+    margin-left: 5%;
+    font-family: Arial, sans-serif;
+}
+
+.popup-info div {
+    margin-bottom: 15px;
+}
+
+.popup-info div span {
+    font-weight: bold;
+    color: #16423C;
+}
+
+
+.popup-content .close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 18px;
+    color: #16423C;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+
+.popup-content:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+
+.dp:hover .popup-content {
+    display: block;
+}
+
+
+.view-container {
+            border-radius: 20px;
+            border: 1px solid #E9EFEC;
+            padding: 15px;
+            background: #FFFFFF;
+            margin-top: 20px;
+            max-height: 1000px; 
+            overflow-y: auto; 
+            background-color: #E9EFEC;
+            margin-top: -20px;
+        }
+
+/* Customize the scrollbar */
+    .view-container::-webkit-scrollbar {
+        width: 10px; 
+    }
+
+    .view-container::-webkit-scrollbar-thumb {
+        background-color: #d1d7d4; 
+        border-radius: 6px; 
+    }
+
+    .order-list::-webkit-scrollbar-track {
+        background-color: #f1f1f1; 
+        border-radius: 6px;
+    }
+
+
+
+
+/*CAROUSEL*/
+.featured {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: -15px;
+    margin-left: 10px;
+    height: 450px;
+    width: 1010px;
+    background-color: transparent;
+}
+
+.Slides img {
+    width: 1000px;
+    height: 380px;
+    display: block;
+    margin: auto;
+    border-radius: 20px;
+    border: 5px solid #16423C;
+}
+
+.dot {
+    cursor: pointer;
+    height: 15px;
+    width: 15px;
+    margin-top: 9%;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.6s ease;
+}
+
+
+
+
+
+.lbox-cont {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-evenly;
+}
+
+
+.prev_log {
+    background-color: #FFFFFF;
+    box-shadow: 0px 4px 4px 0px #888888;
+    padding: 5%;
+    width: 500px;
+    border-radius: 20px;
+    margin-top: -10px;
+}
+
+.prev_log > p {
+    color: #16423C;
+    font-size: 18px;
+}
+
+.notice {
+    
+    background-color: white;
+    box-shadow: 0px 4px 4px 0px #888888;
+    width: 500px;
+    border-radius: 20px;
+    margin-top: 5%;
+    border: 20px solid #C4DAD2;
+    align-items: center;
+    gap: 15px;
+    padding: 5%;
+}
+
+
+
+/*CALENDAR*/
+.calendar_cont {
+    background-color: #6A9C89;
+    width: 440px;
+    border-radius: 30px;
+    box-shadow: 0px 4px 4px 0px #888888;
+}
+
+.calendar {
+    width: 100%;
+    max-width: 600px;
+    background-color: #6A9C89;
+    border-radius: 20px;
+    margin-top: -10px;
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #6A9C89;
+    color: white;
+    border-radius: 20px 20px 0 0;
+    font-weight: bolder;
+}
+
+.calendar-body {
+    padding: 10px;
+}
+
+.calendar-weekdays {
+    display: flex;
+    justify-content: space-between;
+}
+
+.calendar-weekdays div {
+    width: 14.28%;
+    text-align: center;
+    padding: 10px 0;
+    background-color: #6A9C89;
+    border: 1px solid #6A9C89;
+    font-weight: bolder;
+    color: white;
+}
+
+.calendar-dates {
+    display: flex;
+    flex-wrap: wrap;
+}
+
+.calendar-dates div {
+    width: 14.28%;
+    text-align: center;
+    padding: 10px 0;
+    border: 1px solid #6A9C89;
+    font-weight: bolder;
+    color: white;
+}
+
+.calendar-dates div.empty {
+    background-color: #6A9C89;
+}
+
+.calendar-dates div.current {
+    background-color: #C4DAD2;
+    color: #16423C;
+    font-weight: bolder;
+    border-radius: 100px;
+}
+
+.calendar-dates div:hover {
+    background-color: #C4DAD2;
+    cursor: pointer;
+    border-radius: 100px;
+    color: #16423C;
+}
