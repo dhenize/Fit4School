@@ -38,7 +38,7 @@
             border-radius: 10px;
             box-shadow: 3px 14px 18px #16423C;
             width: 100%;
-            height: 444px;
+            height: 480px;
             max-width: 400px;
             border-radius: 15px;
             border: 1px solid #16423C;
@@ -82,6 +82,60 @@
             border-color: #e9efec;
         }
     </style>
+    <?php
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "fit4school";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+if ($_SERVER["REQUEST_METHOD"] == "POST") {
+    if (isset($_POST["username"]) && isset($_POST["password"]) && !empty($_POST["username"]) && !empty($_POST["password"])) {
+        $email = $_POST["username"];
+        $password = $_POST["password"];
+
+        $sql = "SELECT * FROM students WHERE email = ?";
+        $stmt = $conn->prepare($sql);
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        if ($result->num_rows > 0) {
+            $row = $result->fetch_assoc();
+
+            if (password_verify($password, $row["password"])) {
+                $admin_sql = "SELECT * FROM admins WHERE email = ?";
+                $admin_stmt = $conn->prepare($admin_sql);
+                $admin_stmt->bind_param("s", $email);
+                $admin_stmt->execute();
+                $admin_result = $admin_stmt->get_result();
+
+                if ($admin_result->num_rows > 0) {
+                    header("Location: admindash.php");
+                    exit();
+                } else {
+                    header("Location: DASHBOARDStud.php");
+                    exit();
+                }
+
+
+            } else {
+                echo "<script>alert('Incorrect password.'); window.location.href='your_login_page.html';</script>";
+            }
+        } else {
+            echo "<script>alert('User not found.'); window.location.href='your_login_page.html';</script>";
+        }
+        $stmt->close();
+    }
+}
+
+$conn->close();
+?>
 </head>
 
 <body>
@@ -91,33 +145,36 @@
     </div>
 
     <div class="login-container">
-        <form id="loginForm">
+        <form id="loginForm" method="post" action="login_process.php">
             <h2 class="mb-4 text-center">LOG IN</h2>
             <div class="mb-3">
                 <label for="username" class="form-label">Student Email/Username</label>
-                <input type="text" id="username" class="form-control" placeholder="Enter Here..." required>
+                <input type="text" id="username" name="username" class="form-control" placeholder="Enter Here..." required>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
-                <input type="password" id="password" class="form-control" placeholder="Enter Here..." required>
+                <input type="password" id="password" name="password" class="form-control" placeholder="Enter Here..." required>
+                <div id="passwordError" class="error"></div>
             </div>
-           <br>
-            <button type="button" onclick="redirectUser()" class="btn btn-primary w-75 mx-auto d-block mb-3">LOG IN</button>
+            <br>
+            <button type="submit" class="btn btn-primary w-75 mx-auto d-block mb-3">LOG IN</button>
             <a href="fit4veryfication1.php" class="btn btn-secondary w-75 mx-auto d-block">FORGOT PASSWORD?</a>
         </form>
     </div>
 
     <script>
-        function redirectUser() {
-            const username = document.getElementById('username').value.trim();
+        document.getElementById('loginForm').addEventListener('submit', function(event) {
+            const password = document.getElementById('password').value;
+            const passwordError = document.getElementById('passwordError');
+            const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*\d{2}).{8,}$/;
 
-            // Simple condition for redirection
-            if (username === "admin") {
-                window.location.href = "admindash.php"; // Admin dashboard
+            if (!passwordRegex.test(password)) {
+                passwordError.textContent = "Password must have 1 capital letter, 1 special character, 2 numbers, and at least 8 characters.";
+                event.preventDefault();
             } else {
-                window.location.href = "DASHBOARDStud.php"; // Student dashboard
+                passwordError.textContent = "";
             }
-        }
+        });
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
