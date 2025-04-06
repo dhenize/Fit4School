@@ -90,6 +90,15 @@
             border-radius: 10px;
         }
     </style>
+
+        
+    <!-- EMAIL OTP FUNCTION -->
+    <?php 
+
+        
+
+    ?>
+
 </head>
 <body>
     <div class="container-fluid verify-container">
@@ -102,14 +111,14 @@
 
                 <div class="card p-4 shadow verify-box">
                     <h4 class="text-center mb-3">VERIFY YOUR ACCOUNT</h4>
-                    <form action="process.php" method="POST">
+                    <form action="fit4veryfication1.php" method="POST">
                         <div class="mb-3">
-                            <label for="studentNumber" class="form-label">Enter your Student Number/Username</label>
-                            <input type="text" class="form-control" id="studentNumber" name="studentNumber" placeholder="Enter Here..." required>
+                            <label for="email" class="form-label">Enter your Email</label>
+                            <input type="text" class="form-control" id="email" name="email" placeholder="Enter Here..." required>
                         </div>
                         <div class="d-flex justify-content-end gap-2">
                             <a href="fit4login.php" class="btn btn-secondary"> CANCEL </a>
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#sendOtpModal"> CONFIRM </button>
+                            <button type="submit" class="btn btn-success"> CONFIRM </button>
                         </div>
                     </form>
                 </div>
@@ -117,7 +126,7 @@
         </div>
     </div>
 
-    <!-- Send OTP Modal -->
+    <!-- Send OTP Modal
     <div class="modal fade" id="sendOtpModal" tabindex="-1" aria-labelledby="sendOtpModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content" style=" transform: translateY(96%);">
@@ -134,7 +143,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> -->
 
     <!-- Verify OTP Modal -->
     <div class="modal fade" id="verifyOtpModal" tabindex="-1" aria-labelledby="verifyOtpModalLabel" aria-hidden="true">
@@ -145,21 +154,21 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p style=" color: #757575;">Enter OTP code sent to your number:</p>
+                    <p style=" color: #757575;">Enter OTP code sent to your email. You have 5 minutes.</p>
                     <div class="d-flex justify-content-center">
-                        <input type="text" maxlength="1" class="otp-input" required style=" color: #757575;">
-                        <input type="text" maxlength="1" class="otp-input" required style=" color: #757575;">
-                        <input type="text" maxlength="1" class="otp-input" required style=" color: #757575;">
-                        <input type="text" maxlength="1" class="otp-input" required style=" color: #757575;">
+                    
+                    <input type="text" id="otpInput" maxlength="4" class="form-control text-center" required style="width: 100px; color: #757575;">
+
                     </div>
                 </div>
                 <div class="modal-footer" style=" border: none;">
-                    <a href="fit4veryfication2.php" class="btn btn-success">Continue</a>
+                    <button type="button" class="btn btn-success" onclick="verifyOTP()">Continue</button>
                 </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
+    
 </body>
 </html>

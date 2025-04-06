@@ -81,8 +81,12 @@
             color: #6A9C89;
             border-color: #e9efec;
         }
+        .form-label{
+            font-weight: bold;
+            font-family: Candara;
+        }
     </style>
-    <?php
+<?php
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -148,12 +152,13 @@ $conn->close();
         <form id="loginForm" method="post" action="login_process.php">
             <h2 class="mb-4 text-center">LOG IN</h2>
             <div class="mb-3">
-                <label for="username" class="form-label">Student Email/Username</label>
+                <label for="username" class="form-label">Student ID</label>
                 <input type="text" id="username" name="username" class="form-control" placeholder="Enter Here..." required>
             </div>
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" id="password" name="password" class="form-control" placeholder="Enter Here..." required>
+                <input type = "checkbox" class = "show-pass" onclick="passFunction()"> Show Password
                 <div id="passwordError" class="error"></div>
             </div>
             <br>
@@ -175,6 +180,18 @@ $conn->close();
                 passwordError.textContent = "";
             }
         });
+
+
+        //FOR SHOW PASSWORD =====
+        function passFunction(){
+            var a = document.getElementById("password");
+            if (a.type === "password"){
+                a.type = "text";
+            }
+            else{
+                a.type = "password";
+            }
+        }
     </script>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
