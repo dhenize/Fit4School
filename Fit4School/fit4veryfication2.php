@@ -148,11 +148,14 @@
                     <img src="logo.png" alt="Fit4School Logo" class="logo">
                     <h1 class="mt-2">Fit4School</h1>
                 </div>
-                <!-- Second Section -->
                 <div class="card p-4 shadow verify-box mt-4">
                     <h4 class="text-center mb-3">VERIFY YOUR ACCOUNT</h4>
                     <br>
                     <form id="verifyForm" action="reset-password.php" method="POST">
+                        <div class="mb-3">
+                            <label for="otp" class="form-label">Enter the OTP sent to your email</label>
+                            <input type="number" maxlength="4" min="0000" max="9999" class="form-control" id="otp" name="otp" placeholder="Enter OTP Here..." required>
+                        </div>
                         <div class="mb-3">
                             <label for="newPassword" class="form-label">Enter your New Password</label>
                             <input type="password" class="form-control" id="newPassword" name="newPassword" placeholder="Enter Here..." required>
@@ -162,8 +165,7 @@
                             <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" placeholder="Enter Here..." required>
                         </div>
                         <br>
-                        <div class="text-center"> <!-- Center the button -->
-                            <button type="button" class="btn btn-success w-75 mx-auto d-block mb-3" data-bs-toggle="modal" data-bs-target="#confirmationModal">CONFIRM</button>
+                        <div class="text-center"> <button type="submit" class="btn btn-success w-75 mx-auto d-block mb-3">RESET PASSWORD</button>
                         </div>
                     </form>
                 </div>
@@ -171,32 +173,7 @@
         </div>
     </div>
 
-    <!-- Confirmation Modal -->
-    <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="confirmationModalLabel">Confirmation</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p>Are you sure you want to proceed?</p>
-                     Make sure your passwords are correct.
-                </div>
-                <div class="modal-footer">
-                    <a href="fit4veryfication2.php" class="btn btn-secondary" data-bs-dismiss="modal">No</a>
-                    <a href="fit4login.php" class="btn btn-success" id="confirmYesButton">Yes</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Bootstrap JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
-    <script>
-        document.getElementById('confirmYesButton').addEventListener('click', function() {
-            document.getElementById('verifyForm').submit();
-        });
-    </script>
 </body>
+</html>
 </html>

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Apr 07, 2025 at 09:15 AM
+-- Generation Time: May 11, 2025 at 09:45 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -44,24 +44,34 @@ INSERT INTO `admins` (`acc_id`, `email`, `password`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `password_reset_tokens`
+--
+
+CREATE TABLE `password_reset_tokens` (
+  `email` varchar(255) NOT NULL,
+  `otp` varchar(6) NOT NULL,
+  `expiry_time` datetime NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `students`
 --
 
 CREATE TABLE `students` (
   `student_id` int(15) NOT NULL,
   `email` varchar(255) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `otp` int(4) DEFAULT NULL,
-  `otp_expiry` datetime DEFAULT NULL
+  `password` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
 -- Dumping data for table `students`
 --
 
-INSERT INTO `students` (`student_id`, `email`, `password`, `otp`, `otp_expiry`) VALUES
-(202210602, 'dhenizelopez@gmail.com', 'Dhenizelopez00!', 8977, '2025-04-05 14:11:16'),
-(202212345, 'marc@pasquin.edu', 'marcP@squin00', NULL, NULL);
+INSERT INTO `students` (`student_id`, `email`, `password`) VALUES
+(202210123, 'ic.marcedlin.pasquin@cvsu.edu.ph', 'password'),
+(202210602, 'dhenizelopez@gmail.com', 'Dhenizelopez00!');
 
 --
 -- Indexes for dumped tables
@@ -72,6 +82,12 @@ INSERT INTO `students` (`student_id`, `email`, `password`, `otp`, `otp_expiry`) 
 --
 ALTER TABLE `admins`
   ADD PRIMARY KEY (`acc_id`);
+
+--
+-- Indexes for table `password_reset_tokens`
+--
+ALTER TABLE `password_reset_tokens`
+  ADD PRIMARY KEY (`email`);
 
 --
 -- Indexes for table `students`
