@@ -13,16 +13,45 @@ try {
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
     function getArchivedAppointments(PDO $pdo, ?string $remarkFilter = null): array {
-        $sql = "SELECT Archive_ID, order_id, student_id, Queue_Number, items, quantity, date_of_appointment, time_of_appointment, total, ticket, remark, admin_id, archived_at FROM archive";
+        $sql = "SELECT
+                    a.archive_id,
+                    d.dump_id,
+                    s.student_id,
+                    s.fname,
+                    s.lname,
+                    a2.queue_no,
+                    GROUP_CONCAT(CONCAT(i.item_name, ' (', i.size, ')') SEPARATOR ', ') AS items_details,
+                    SUM(ai.quantity) AS total_quantity,
+                    d.date_of_app,
+                    d.time_of_app,
+                    SUM(i.price * ai.quantity) AS total_price,
+                    d.remarks,
+                    d.date_created
+                FROM
+                    archive a
+                JOIN
+                    dump d ON a.dump_id = d.dump_id
+                JOIN
+                    student s ON d.stud_id = s.student_id
+                JOIN
+                    appointments a2 ON d.app_id = a2.app_id
+                JOIN
+                    appointment_items ai ON d.app_id = ai.app_id AND d.item_id = ai.item_id AND d.quantity = ai.quantity
+                JOIN
+                    inventory i ON ai.item_id = i.item_id
+                WHERE 1=1";
+
         $params = [];
 
         $allowedRemarks = ['Missed', 'Done'];
         if ($remarkFilter && in_array($remarkFilter, $allowedRemarks)) {
-            $sql .= " WHERE remark = ?";
+            $sql .= " AND d.remarks = ?";
             $params[] = $remarkFilter;
         }
 
-        $sql .= " ORDER BY date_of_appointment DESC, time_of_appointment DESC";
+        $sql .= " GROUP BY a.archive_id, d.dump_id, s.student_id, s.fname, s.lname, a2.queue_no, d.date_of_app, d.time_of_app, d.remarks, d.date_created";
+        $sql .= " ORDER BY d.date_of_app DESC, d.time_of_app DESC";
+
         $stmt = $pdo->prepare($sql);
         $stmt->execute($params);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -43,7 +72,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Archive</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet">
     <link rel="stylesheet" href="#"> <link rel="icon" href="Logo.png" type="image/x-icon">
 
@@ -208,6 +237,7 @@ try {
             background-color: #ffffff;
             color: #000000;
             font-weight: bold;
+            position: sticky;
             top: 0;
             z-index: 1;
         }
@@ -280,8 +310,8 @@ try {
 
     <div class="search-container">
         <div style="position: relative; width: 30%; margin-left: 16px;">
-            <input type="text" id="searchInput" placeholder="Search..."
-                           style="border-radius: 20px; padding: 10px 15px; width: 100%; border: 1px solid #16423C;">
+            <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search..."
+                         style="border-radius: 20px; padding: 10px 15px; width: 100%; border: 1px solid #16423C;">
             <button style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
                                  border: none; color: #16423C; background-color: transparent; border-radius: 50%;
                                  padding: 6px 8px; cursor: pointer;">
@@ -311,37 +341,35 @@ try {
                 <?php elseif (empty($archivedAppointments)): ?>
                     <p class="text-center">No archived appointments found.</p>
                 <?php else: ?>
-                    <table class="table">
+                    <table class="table" id="archiveTable">
                         <thead>
                             <tr>
                                 <th>Archive ID</th>
-                                <th>Order ID</th>
                                 <th>Student ID</th>
+                                <th>Student Name</th>
                                 <th>Queue Number</th>
                                 <th>Items</th>
                                 <th>Quantity</th>
                                 <th>Date of Appointment</th>
                                 <th>Time of Appointment</th>
-                                <th>Total</th>
-                                <th>Ticket</th>
+                                <th>Total Price</th>
                                 <th>Remark</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($archivedAppointments as $appointment): ?>
                                 <tr>
-                                    <td><?php echo htmlspecialchars($appointment['Archive_ID']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['order_id']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['archive_id']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['student_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['Queue_Number']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['items']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['quantity']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['date_of_appointment']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['time_of_appointment']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['total']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['ticket'] ?? 'N/A'); ?></td>
-                                    <td class="<?php echo ($appointment['remark'] == 'Done') ? 'remark-done' : (($appointment['remark'] == 'Missed') ? 'remark-missed' : ''); ?>">
-                                        <?php echo htmlspecialchars(ucfirst($appointment['remark'])); ?>
+                                    <td><?php echo htmlspecialchars($appointment['fname'] . ' ' . $appointment['lname']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['queue_no']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['items_details']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['total_quantity']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['date_of_app']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['time_of_app']); ?></td>
+                                    <td><?php echo htmlspecialchars(number_format($appointment['total_price'], 2)); ?></td>
+                                    <td class="<?php echo ($appointment['remarks'] == 'Done') ? 'remark-done' : (($appointment['remarks'] == 'Missed') ? 'remark-missed' : ''); ?>">
+                                        <?php echo htmlspecialchars(ucfirst($appointment['remarks'])); ?>
                                     </td>
                                 </tr>
                             <?php endforeach; ?>
@@ -353,7 +381,31 @@ try {
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+
+<script>
+    function searchTable() {
+        var input, filter, table, tr, td, i, j, txtValue;
+        input = document.getElementById("searchInput");
+        filter = input.value.toUpperCase();
+        table = document.getElementById("archiveTable");
+        tr = table.getElementsByTagName("tr");
+
+        for (i = 1; i < tr.length; i++) {
+            tr[i].style.display = "none";
+            td = tr[i].getElementsByTagName("td");
+            for (j = 0; j < td.length; j++) {
+                if (td[j]) {
+                    txtValue = td[j].textContent || td[j].innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        tr[i].style.display = "";
+                        break;
+                    }
+                }
+            }
+        }
+    }
+</script>
 
 </body>
 </html>

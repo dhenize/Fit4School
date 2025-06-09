@@ -164,7 +164,7 @@
 
     function storeOTPInDatabase(PDO $pdo, string $email, string $otp, int $expirySeconds = 900): bool {
         $expiryTime = date('Y-m-d H:i:s', time() + $expirySeconds);
-        $stmt = $pdo->prepare("INSERT INTO password_reset_tokens (email, otp, expiry_time) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE otp = VALUES(otp), expiry_time = VALUES(expiry_time)");
+        $stmt = $pdo->prepare("INSERT INTO pass_reset (email, otp, expiry_time) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE otp = VALUES(otp), expiry_time = VALUES(expiry_time)");
         return $stmt->execute([$email, $otp, $expiryTime]);
     }
 
@@ -186,7 +186,7 @@
         $email = filter_var($_POST['email'], FILTER_SANITIZE_EMAIL);
 
         if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
-            $stmt = $pdo->prepare("SELECT email FROM students WHERE email = ?");
+            $stmt = $pdo->prepare("SELECT email FROM student WHERE email = ?");
             $stmt->execute([$email]);
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 

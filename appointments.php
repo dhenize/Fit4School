@@ -13,75 +13,179 @@ try {
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
-    function getAppointments(PDO $pdo): array {
-        $stmt = $pdo->prepare("SELECT order_id, student_id, Queue_Number, items, size, quantity, date_of_appointment, time_of_appointment, total, Ticket, remark, admin_id, created_at FROM appointments ORDER BY date_of_appointment DESC, time_of_appointment DESC");
+    function getAppointments(PDO $pdo): array
+    {
+        $stmt = $pdo->prepare("
+            SELECT
+                a.app_id,
+                a.student_id,
+                a.queue_no,
+                s.fname,
+                s.lname,
+                a.date_of_app,
+                a.time_of_app,
+                a.ticket_file,
+                a.remarks,
+                ai.appitems_id,
+                i.item_name,
+                i.size,
+                ai.quantity AS item_quantity,
+                i.price
+            FROM
+                appointments a
+            JOIN
+                student s ON a.student_id = s.student_id
+            LEFT JOIN
+                appointment_items ai ON a.app_id = ai.app_id
+            LEFT JOIN
+                inventory i ON ai.item_id = i.item_id
+            ORDER BY
+                a.date_of_app DESC, a.time_of_app DESC
+        ");
         $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $rawAppointments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $groupedAppointments = [];
+        foreach ($rawAppointments as $row) {
+            $appId = $row['app_id'];
+            if (!isset($groupedAppointments[$appId])) {
+                $groupedAppointments[$appId] = [
+                    'app_id' => $row['app_id'],
+                    'student_id' => $row['student_id'],
+                    'fname' => $row['fname'],
+                    'lname' => $row['lname'],
+                    'queue_no' => $row['queue_no'],
+                    'date_of_app' => $row['date_of_app'],
+                    'time_of_app' => $row['time_of_app'],
+                    'ticket_file' => $row['ticket_file'],
+                    'remarks' => $row['remarks'],
+                    'items' => [],
+                    'total_price' => 0.0
+                ];
+            }
+            if ($row['item_name']) {
+                $groupedAppointments[$appId]['items'][] = [
+                    'item_name' => $row['item_name'],
+                    'size' => $row['size'],
+                    'quantity' => $row['item_quantity'],
+                    'price' => $row['price']
+                ];
+                $groupedAppointments[$appId]['total_price'] += ($row['item_quantity'] * $row['price']);
+            }
+        }
+        return array_values($groupedAppointments);
     }
 
-    function archiveAppointment(PDO $pdo, int $orderId): bool {
+    function archiveAppointment(PDO $pdo, int $appId): bool
+    {
         $pdo->beginTransaction();
         try {
-            $stmt_select = $pdo->prepare("SELECT order_id, student_id, Queue_Number, items, size, quantity, date_of_appointment, time_of_appointment, total, Ticket, remark, admin_id FROM appointments WHERE order_id = ?");
-            $stmt_select->execute([$orderId]);
-            $appointment_to_archive = $stmt_select->fetch(PDO::FETCH_ASSOC);
+            $stmt_app = $pdo->prepare("SELECT app_id, student_id, queue_no, date_of_app, time_of_app, remarks FROM appointments WHERE app_id = ?");
+            $stmt_app->execute([$appId]);
+            $appointment_to_archive = $stmt_app->fetch(PDO::FETCH_ASSOC);
 
             if (!$appointment_to_archive) {
                 $pdo->rollBack();
-                error_log("ARCHIVE_ERROR: Attempted to archive non-existent appointment with order_id: " . $orderId);
-                return false;
-            }
-            $stmt_insert = $pdo->prepare(
-                "INSERT INTO archive (order_id, student_id, Queue_Number, items, quantity, date_of_appointment, time_of_appointment, total, ticket, remark, admin_id)
-                 VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
-            );
-            $inserted = $stmt_insert->execute([
-                $appointment_to_archive['order_id'],
-                $appointment_to_archive['student_id'],
-                $appointment_to_archive['Queue_Number'],
-                $appointment_to_archive['items'],
-                $appointment_to_archive['quantity'],
-                $appointment_to_archive['date_of_appointment'],
-                $appointment_to_archive['time_of_appointment'],
-                $appointment_to_archive['total'],
-                $appointment_to_archive['remark']
-            ]);
-
-            if (!$inserted) {
-                $pdo->rollBack();
-                error_log("ARCHIVE_ERROR: Failed to insert into archive for order_id: " . $orderId);
+                error_log("ARCHIVE_ERROR: Attempted to archive non-existent appointment with app_id: " . $appId);
                 return false;
             }
 
-            $stmt_delete = $pdo->prepare("DELETE FROM appointments WHERE order_id = ?");
-            $deleted = $stmt_delete->execute([$orderId]);
+            $stmt_items = $pdo->prepare("SELECT appitems_id, item_id, quantity FROM appointment_items WHERE app_id = ?");
+            $stmt_items->execute([$appId]);
+            $appointment_items_to_archive = $stmt_items->fetchAll(PDO::FETCH_ASSOC);
 
-            if (!$deleted) {
+            $dump_ids = [];
+            if (!empty($appointment_items_to_archive)) {
+                foreach ($appointment_items_to_archive as $item) {
+                    $stmt_insert_dump = $pdo->prepare(
+                        "INSERT INTO dump (app_id, stud_id, appitems_id, item_id, quantity, date_of_app, time_of_app, remarks)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+                    );
+                    $inserted_dump = $stmt_insert_dump->execute([
+                        $appointment_to_archive['app_id'],
+                        $appointment_to_archive['student_id'],
+                        $item['appitems_id'],
+                        $item['item_id'],
+                        $item['quantity'],
+                        $appointment_to_archive['date_of_app'],
+                        $appointment_to_archive['time_of_app'],
+                        $appointment_to_archive['remarks']
+                    ]);
+
+                    if (!$inserted_dump) {
+                        $pdo->rollBack();
+                        error_log("ARCHIVE_ERROR: Failed to insert into dump for appitems_id: " . $item['appitems_id']);
+                        return false;
+                    }
+                    $dump_ids[] = $pdo->lastInsertId(); 
+                }
+            } else {
+                 $stmt_insert_dump = $pdo->prepare(
+                    "INSERT INTO dump (app_id, stud_id, date_of_app, time_of_app, remarks)
+                    VALUES (?, ?, ?, ?, ?)"
+                );
+                $inserted_dump = $stmt_insert_dump->execute([
+                    $appointment_to_archive['app_id'],
+                    $appointment_to_archive['student_id'],
+                    $appointment_to_archive['date_of_app'],
+                    $appointment_to_archive['time_of_app'],
+                    $appointment_to_archive['remarks']
+                ]);
+                if (!$inserted_dump) {
+                    $pdo->rollBack();
+                    error_log("ARCHIVE_ERROR: Failed to insert main appointment into dump for app_id: " . $appId);
+                    return false;
+                }
+                $dump_ids[] = $pdo->lastInsertId();
+            }
+
+            if (!empty($dump_ids)) {
+                $stmt_insert_archive = $pdo->prepare("INSERT INTO archive (dump_id) VALUES (?)");
+                $inserted_archive = $stmt_insert_archive->execute([$dump_ids[0]]);
+                if (!$inserted_archive) {
+                    $pdo->rollBack();
+                    error_log("ARCHIVE_ERROR: Failed to insert into archive for dump_id: " . $dump_ids[0]);
+                    return false;
+                }
+            }
+
+            $stmt_delete_items = $pdo->prepare("DELETE FROM appointment_items WHERE app_id = ?");
+            $deleted_items = $stmt_delete_items->execute([$appId]);
+            if (!$deleted_items) {
                 $pdo->rollBack();
-                error_log("ARCHIVE_ERROR: Failed to delete from appointments for order_id: " . $orderId);
+                error_log("ARCHIVE_ERROR: Failed to delete from appointment_items for app_id: " . $appId);
+                return false;
+            }
+
+            $stmt_delete_app = $pdo->prepare("DELETE FROM appointments WHERE app_id = ?");
+            $deleted_app = $stmt_delete_app->execute([$appId]);
+
+            if (!$deleted_app) {
+                $pdo->rollBack();
+                error_log("ARCHIVE_ERROR: Failed to delete from appointments for app_id: " . $appId);
                 return false;
             }
 
             $pdo->commit();
             return true;
-
         } catch (PDOException $e) {
             $pdo->rollBack();
-            $errorMessage = "ARCHIVE_EXCEPTION: Transaction failed during archiving (Order ID: " . $orderId . "): " . $e->getMessage();
+            $errorMessage = "ARCHIVE_EXCEPTION: Transaction failed during archiving (App ID: " . $appId . "): " . $e->getMessage();
             error_log($errorMessage);
             return false;
         }
     }
 
-    function updateAppointmentRemark(PDO $pdo, int $orderId, string $newRemark): bool {
-        $stmt = $pdo->prepare("UPDATE appointments SET remark = ? WHERE order_id = ?");
-        $updated = $stmt->execute([$newRemark, $orderId]);
+    function updateAppointmentRemark(PDO $pdo, int $appId, string $newRemark): bool
+    {
+        $stmt = $pdo->prepare("UPDATE appointments SET remarks = ? WHERE app_id = ?");
+        $updated = $stmt->execute([$newRemark, $appId]);
 
         if ($updated && $newRemark === 'Done') {
-            if (archiveAppointment($pdo, $orderId)) {
+            if (archiveAppointment($pdo, $appId)) {
                 return true;
             } else {
-                error_log("REMARK_UPDATE_ERROR: Archiving failed for order_id: " . $orderId . " after remark updated to " . $newRemark);
+                error_log("REMARK_UPDATE_ERROR: Archiving failed for app_id: " . $appId . " after remark updated to " . $newRemark);
                 return false;
             }
         }
@@ -92,15 +196,15 @@ try {
         ob_clean();
         header('Content-Type: application/json');
 
-        $orderId = filter_var($_POST['order_id'], FILTER_VALIDATE_INT);
+        $appId = filter_var($_POST['app_id'], FILTER_VALIDATE_INT);
         $newRemark = filter_var($_POST['remark'], FILTER_SANITIZE_STRING);
 
-        if ($orderId === false || $orderId <= 0 || !in_array($newRemark, ['Ongoing', 'Missed', 'Done'])) {
+        if ($appId === false || $appId <= 0 || !in_array($newRemark, ['Ongoing', 'Missed', 'Done'])) {
             echo json_encode(['success' => false, 'message' => 'Invalid input for remark update.']);
             exit();
         }
 
-        if (updateAppointmentRemark($pdo, $orderId, $newRemark)) {
+        if (updateAppointmentRemark($pdo, $appId, $newRemark)) {
             echo json_encode(['success' => true, 'message' => 'Remark updated and ' . ($newRemark === 'Done' ? 'archived successfully.' : 'kept in current appointments.')]);
         } else {
             echo json_encode(['success' => false, 'message' => 'Failed to update remark or archive. Check server logs.']);
@@ -122,7 +226,7 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Appointments - Fit4School</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" xintegrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link href="https://cdn.lineicons.com/4.0/lineicons.css" rel="stylesheet">
     <link rel="stylesheet" href="#">
     <link rel="icon" href="Logo.png" type="image/x-icon">
@@ -328,6 +432,13 @@ try {
             font-weight: bold;
         }
 
+        .info-message {
+            color: blue; /* Added style for info messages */
+            margin-top: 10px;
+            text-align: center;
+            font-weight: bold;
+        }
+
         .table {
             width: 100%;
             margin-bottom: 0;
@@ -383,23 +494,25 @@ try {
     <div class="search-container">
         <div style="position: relative; width: 30%; margin-left: 16px;">
             <input type="text" id="searchInput" placeholder="Search..."
-                           style="border-radius: 20px; padding: 10px 15px; width: 100%; border: 1px solid #16423C;">
+                                style="border-radius: 20px; padding: 10px 15px; width: 100%; border: 1px solid #16423C;">
             <button style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
-                                 border: none; color: #16423C; background-color: transparent; border-radius: 50%;
-                                 padding: 6px 8px; cursor: pointer;">
+                                    border: none; color: #16423C; background-color: transparent; border-radius: 50%;
+                                    padding: 6px 8px; cursor: pointer;">
                 🔍
             </button>
         </div>
 
         <div class="option">
-            <a class="optionbtn">Missed
+            <a class="optionbtn">All
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
                         <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                     </svg>
                 </a>
             <div class="option-content">
-                <a href="#">Ongoing</a>
-                <a href="#">Missed</a>
+                <a href="#" onclick="filterAppointments('All')">All</a>
+                <a href="#" onclick="filterAppointments('Ongoing')">Ongoing</a>
+                <a href="#" onclick="filterAppointments('Missed')">Missed</a>
+                <a href="#" onclick="filterAppointments('Done')">Done</a>
             </div>
         </div>
     </div>
@@ -417,42 +530,50 @@ try {
                 <?php elseif (empty($appointments)): ?>
                     <p class="text-center">No appointments found.</p>
                 <?php else: ?>
-                    <table class="table">
+                    <table class="table" id="appointmentsTable">
                         <thead>
                             <tr>
-                                <th>Order ID</th>
+                                <th>App ID</th>
                                 <th>Student ID</th>
+                                <th>Student Name</th>
                                 <th>Queue Number</th>
                                 <th>Items</th>
-                                <th>Size</th>
-                                <th>Quantity</th>
                                 <th>Date of Appointment</th>
                                 <th>Time of Appointment</th>
-                                <th>Total</th>
+                                <th>Total Price</th>
                                 <th>Ticket</th>
                                 <th>Remarks</th>
                             </tr>
                         </thead>
                         <tbody>
                             <?php foreach ($appointments as $appointment): ?>
-                                <tr>
-                                    <td><?php echo htmlspecialchars($appointment['order_id']); ?></td>
+                                <tr data-remarks="<?php echo htmlspecialchars($appointment['remarks']); ?>">
+                                    <td><?php echo htmlspecialchars($appointment['app_id']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['student_id']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['Queue_Number']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['items']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['size']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['quantity']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['date_of_appointment']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['time_of_appointment']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['total']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['Ticket'] ?? 'N/A'); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['fname'] . ' ' . $appointment['lname']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['queue_no']); ?></td>
+                                    <td>
+                                        <?php if (!empty($appointment['items'])): ?>
+                                            <ul>
+                                                <?php foreach ($appointment['items'] as $item): ?>
+                                                    <li><?php echo htmlspecialchars($item['item_name']) . ' (' . htmlspecialchars($item['size']) . ') <b>x' . htmlspecialchars($item['quantity']) . '</b>'; ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php else: ?>
+                                            N/A
+                                        <?php endif; ?>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($appointment['date_of_app']); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['time_of_app']); ?></td>
+                                    <td>₱<?php echo number_format($appointment['total_price'], 2); ?></td>
+                                    <td><?php echo htmlspecialchars($appointment['ticket_file'] ?? 'N/A'); ?></td>
                                     <td>
                                         <select class="form-select status-dropdown"
-                                                data-order-id="<?php echo $appointment['order_id']; ?>"
+                                                data-app-id="<?php echo $appointment['app_id']; ?>"
                                                 onchange="updateAppointmentRemark(this)">
-                                            <option value="Ongoing" <?php echo ($appointment['remark'] == 'Ongoing') ? 'selected' : ''; ?>>Ongoing</option>
-                                            <option value="Missed" <?php echo ($appointment['remark'] == 'Missed') ? 'selected' : ''; ?>>Missed</option>
-                                            <option value="Done" <?php echo ($appointment['remark'] == 'Done') ? 'selected' : ''; ?>>Done</option>
+                                            <option value="Ongoing" <?php echo ($appointment['remarks'] == 'Ongoing') ? 'selected' : ''; ?>>Ongoing</option>
+                                            <option value="Missed" <?php echo ($appointment['remarks'] == 'Missed') ? 'selected' : ''; ?>>Missed</option>
+                                            <option value="Done" <?php echo ($appointment['remarks'] == 'Done') ? 'selected' : ''; ?>>Done</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -465,17 +586,16 @@ try {
     </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" xintegrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 
 <script>
     function updateAppointmentRemark(selectElement) {
-        const orderId = selectElement.dataset.orderId;
+        const appId = selectElement.dataset.appId;
         const newRemark = selectElement.value;
 
         const messageContainer = document.querySelector('.orderlist');
         const tempMessage = document.createElement('p');
         tempMessage.className = 'info-message text-center';
-        tempMessage.style.color = 'blue';
         tempMessage.textContent = 'Updating remark...';
         messageContainer.prepend(tempMessage);
 
@@ -484,7 +604,7 @@ try {
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
             },
-            body: `action=update_remark&order_id=${orderId}&remark=${newRemark}`
+            body: `action=update_remark&app_id=${appId}&remark=${newRemark}`
         })
         .then(response => {
             if (!response.ok) {
@@ -522,6 +642,7 @@ try {
                         }
                     }
                 }
+                selectElement.closest('tr').dataset.remarks = newRemark;
             }
         })
         .catch(error => {
@@ -537,6 +658,35 @@ try {
             console.error('Fetch error:', error);
         });
     }
+
+    function filterAppointments(status) {
+        const tableRows = document.querySelectorAll('#appointmentsTable tbody tr');
+        tableRows.forEach(row => {
+            const rowStatus = row.dataset.remarks;
+            if (status === 'All' || rowStatus === status) {
+                row.style.display = ''; 
+            } else {
+                row.style.display = 'none'; 
+            }
+        });
+
+        const optionBtn = document.querySelector('.optionbtn');
+        optionBtn.innerHTML = status + ' ' + '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16"><path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/></svg>';
+    }
+
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchText = this.value.toLowerCase();
+        const tableRows = document.querySelectorAll('#appointmentsTable tbody tr');
+
+        tableRows.forEach(row => {
+            let rowText = row.textContent.toLowerCase();
+            if (rowText.includes(searchText)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
 </script>
 </body>
 </html>
