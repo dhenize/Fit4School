@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2025 at 10:47 AM
+-- Generation Time: Jun 09, 2025 at 11:35 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -49,8 +49,10 @@ INSERT INTO `admin` (`admin_id`, `email`, `password`) VALUES
 CREATE TABLE `appointments` (
   `app_id` int(15) NOT NULL,
   `student_id` int(15) NOT NULL,
+  `queue_no` int(15) NOT NULL,
   `date_of_app` date NOT NULL,
   `time_of_app` time NOT NULL,
+  `ticket_file` varchar(255) DEFAULT NULL,
   `remarks` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
