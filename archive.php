@@ -19,26 +19,21 @@ try {
                     s.student_id,
                     s.fname,
                     s.lname,
-                    a2.queue_no,
-                    GROUP_CONCAT(CONCAT(i.item_name, ' (', i.size, ')') SEPARATOR ', ') AS items_details,
-                    SUM(ai.quantity) AS total_quantity,
                     d.date_of_app,
                     d.time_of_app,
-                    SUM(i.price * ai.quantity) AS total_price,
                     d.remarks,
-                    d.date_created
+                    d.date_created,
+                    GROUP_CONCAT(DISTINCT CONCAT(i.item_name, ' (', i.size, ') x', d.quantity) SEPARATOR '<br>') AS items_details,
+                    SUM(d.quantity) AS total_quantity,
+                    SUM(i.price * d.quantity) AS total_price
                 FROM
                     archive a
                 JOIN
                     dump d ON a.dump_id = d.dump_id
                 JOIN
                     student s ON d.stud_id = s.student_id
-                JOIN
-                    appointments a2 ON d.app_id = a2.app_id
-                JOIN
-                    appointment_items ai ON d.app_id = ai.app_id AND d.item_id = ai.item_id AND d.quantity = ai.quantity
-                JOIN
-                    inventory i ON ai.item_id = i.item_id
+                LEFT JOIN
+                    inventory i ON d.item_id = i.item_id
                 WHERE 1=1";
 
         $params = [];
@@ -49,7 +44,7 @@ try {
             $params[] = $remarkFilter;
         }
 
-        $sql .= " GROUP BY a.archive_id, d.dump_id, s.student_id, s.fname, s.lname, a2.queue_no, d.date_of_app, d.time_of_app, d.remarks, d.date_created";
+        $sql .= " GROUP BY a.archive_id, d.dump_id, s.student_id, s.fname, s.lname, d.date_of_app, d.time_of_app, d.remarks, d.date_created";
         $sql .= " ORDER BY d.date_of_app DESC, d.time_of_app DESC";
 
         $stmt = $pdo->prepare($sql);
@@ -347,9 +342,8 @@ try {
                                 <th>Archive ID</th>
                                 <th>Student ID</th>
                                 <th>Student Name</th>
-                                <th>Queue Number</th>
                                 <th>Items</th>
-                                <th>Quantity</th>
+                                <th>Total Quantity</th>
                                 <th>Date of Appointment</th>
                                 <th>Time of Appointment</th>
                                 <th>Total Price</th>
@@ -362,8 +356,7 @@ try {
                                     <td><?php echo htmlspecialchars($appointment['archive_id']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['student_id']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['fname'] . ' ' . $appointment['lname']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['queue_no']); ?></td>
-                                    <td><?php echo htmlspecialchars($appointment['items_details']); ?></td>
+                                    <td><?php echo $appointment['items_details']; ?></td>
                                     <td><?php echo htmlspecialchars($appointment['total_quantity']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['date_of_app']); ?></td>
                                     <td><?php echo htmlspecialchars($appointment['time_of_app']); ?></td>
