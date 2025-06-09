@@ -1,4 +1,5 @@
 <?php
+session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -247,16 +248,8 @@ try {
             border: none;
             cursor: pointer;
             padding: 10px 15px;
-            font-weight: bold;
-            font-size: 16px;
-            appearance: none;
-            -webkit-appearance: none;
-            -moz-appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='currentColor' class='bi bi-caret-down-fill' viewBox='0 0 16 16'%3E%3Cpath d='M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z'/%3E%3C/svg%3E");
-            background-repeat: no-repeat;
-            background-position: right 15px center;
-            background-size: 16px;
-            padding-right: 35px;
+            text-decoration: none;
+            margin-right: 70px;
         }
 
         .remark-done {
@@ -287,12 +280,12 @@ try {
                         <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
                     </svg>
                 </a>
-                <div class="dropdown-content">
-                    <a href="admindash.php">Dashboard</a>
-                    <a href="appointments.php">Appointments</a>
-                    <a href="stock.php">Stocks</a>
-                    <a href="archive.php">Archive</a>
-                </div>
+            <div class="dropdown-content">
+                <a href="admindash.php">Dashboard</a>
+                <a href="appointments.php">Appointments</a>
+                <a href="stock.php">Stocks</a>
+                <a href="archive.php">Archive</a>
+            </div>
             </div>
             <a href="adminhelp.php">Help</a>
             <a href="fit4login.php">Logout</a>
@@ -304,7 +297,7 @@ try {
     </div>
 
     <div class="search-container">
-        <div style="position: relative; width: 30%; margin-left: 16px;">
+        <div style="position: relative; width: 30%; margin-left: 16px; margin-right: 16px;">
             <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search..."
                          style="border-radius: 20px; padding: 10px 15px; width: 100%; border: 1px solid #16423C;">
             <button style="position: absolute; top: 50%; right: 10px; transform: translateY(-50%);
