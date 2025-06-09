@@ -104,12 +104,12 @@
     require 'PHPMailer/src/SMTP.php';
 
     $smtpHost = 'smtp-relay.brevo.com';
-    $smtpUsername = '8caf45001@smtp-brevo.com';
-    $smtpPassword = 's4vpaT7fXRyUrHtQ';
+    $smtpUsername = '8f3d7e001@smtp-brevo.com';
+    $smtpPassword = 'dMzx0wLJCEBWv68O';
     $smtpPort = 587;
     $smtpSecure = PHPMailer::ENCRYPTION_STARTTLS;
 
-    $fromEmail = 'jwan8424@gmail.com';
+    $fromEmail = 'fit4school.official@gmail.com';
     $fromName = 'Fit4School';
 
     $servername = "localhost";
