@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2025 at 11:35 AM
+-- Generation Time: Jun 09, 2025 at 01:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -57,6 +57,13 @@ CREATE TABLE `appointments` (
   `date_created` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `appointments`
+--
+
+INSERT INTO `appointments` (`app_id`, `student_id`, `queue_no`, `date_of_app`, `time_of_app`, `ticket_file`, `remarks`, `date_created`) VALUES
+(1, 202210602, 1, '2025-06-10', '08:00:00', NULL, 'Ongoing', '2025-06-09 10:04:51');
+
 -- --------------------------------------------------------
 
 --
@@ -69,6 +76,13 @@ CREATE TABLE `appointment_items` (
   `item_id` int(15) NOT NULL,
   `quantity` int(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `appointment_items`
+--
+
+INSERT INTO `appointment_items` (`appitems_id`, `app_id`, `item_id`, `quantity`) VALUES
+(1, 1, 13, 2);
 
 -- --------------------------------------------------------
 
@@ -176,9 +190,16 @@ INSERT INTO `inventory` (`item_id`, `item_name`, `size`, `price`, `quantity`) VA
 
 CREATE TABLE `pass_reset` (
   `email` varchar(255) NOT NULL,
-  `otp` varchar(6) NOT NULL,
-  `expiry_time` datetime NOT NULL
+  `otp` varchar(6) DEFAULT NULL,
+  `expiry_time` datetime DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `pass_reset`
+--
+
+INSERT INTO `pass_reset` (`email`, `otp`, `expiry_time`) VALUES
+('ic.dhenizekristafaith.lopez@cvsu.edu.ph', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -194,8 +215,15 @@ CREATE TABLE `student` (
   `lname` varchar(255) NOT NULL,
   `bdate` date NOT NULL,
   `crs_sec` varchar(255) NOT NULL,
-  `contact_no` int(15) NOT NULL
+  `contact_no` bigint(15) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `student`
+--
+
+INSERT INTO `student` (`student_id`, `email`, `password`, `fname`, `lname`, `bdate`, `crs_sec`, `contact_no`) VALUES
+(202210602, 'ic.dhenizekristafaith.lopez@cvsu.edu.ph', 'Dhenize_001', 'Dhenize Krista Faith ', 'Lopez', '2004-11-01', 'BSIT - 3D', 9813509033);
 
 --
 -- Indexes for dumped tables
