@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 09, 2025 at 01:06 PM
+-- Generation Time: Jun 09, 2025 at 05:06 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -52,6 +52,7 @@ CREATE TABLE `appointments` (
   `queue_no` int(15) NOT NULL,
   `date_of_app` date NOT NULL,
   `time_of_app` time NOT NULL,
+  `qr_code` varchar(255) DEFAULT NULL,
   `ticket_file` varchar(255) DEFAULT NULL,
   `remarks` varchar(255) NOT NULL,
   `date_created` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
@@ -61,8 +62,8 @@ CREATE TABLE `appointments` (
 -- Dumping data for table `appointments`
 --
 
-INSERT INTO `appointments` (`app_id`, `student_id`, `queue_no`, `date_of_app`, `time_of_app`, `ticket_file`, `remarks`, `date_created`) VALUES
-(1, 202210602, 1, '2025-06-10', '08:00:00', NULL, 'Ongoing', '2025-06-09 10:04:51');
+INSERT INTO `appointments` (`app_id`, `student_id`, `queue_no`, `date_of_app`, `time_of_app`, `qr_code`, `ticket_file`, `remarks`, `date_created`) VALUES
+(1, 202210602, 1, '2025-06-10', '08:00:00', 'FIT4SCHOOL-APPID-0001', NULL, 'Ongoing', '2025-06-09 15:01:21');
 
 -- --------------------------------------------------------
 
