@@ -1,10 +1,24 @@
+<?php
+session_start();
+
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "db_fit4school";
+
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+if ($conn->connect_error) {
+    die("Connection failed: " . $conn->connect_error);
+}
+
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fit4School Login</title>
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="icon" href="Logo_Light.png" type="image/x-icon">
     <style>
@@ -61,7 +75,7 @@
             border-radius: 20px;
             font-size: 18px;
             font-family: Candara;
-            font-weight: bold;   
+            font-weight: bold;
         }
         .btn-primary:hover {
             background-color: #6A9C89;
@@ -74,7 +88,7 @@
             border-radius: 20px;
             font-size: 18px;
             font-family: Candara;
-            font-weight: bold;  
+            font-weight: bold;
         }
         .btn-secondary:hover {
             background-color: #e9efec;
@@ -85,61 +99,12 @@
             font-weight: bold;
             font-family: Candara;
         }
-    </style>
-<?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "db_fit4school";
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
-}
-
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST["username"]) && isset($_POST["password"]) && !empty($_POST["username"]) && !empty($_POST["password"])) {
-        $email = $_POST["username"];
-        $password = $_POST["password"];
-
-        $sql = "SELECT * FROM student WHERE email = ?";
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("s", $email);
-        $stmt->execute();
-        $result = $stmt->get_result();
-
-        if ($result->num_rows > 0) {
-            $row = $result->fetch_assoc();
-
-            if (password_verify($password, $row["password"])) {
-                $admin_sql = "SELECT * FROM admin WHERE email = ?";
-                $admin_stmt = $conn->prepare($admin_sql);
-                $admin_stmt->bind_param("s", $email);
-                $admin_stmt->execute();
-                $admin_result = $admin_stmt->get_result();
-
-                if ($admin_result->num_rows > 0) {
-                    header("Location: admindash.php");
-                    exit();
-                } else {
-                    header("Location: DASHBOARDStud.php");
-                    exit();
-                }
-
-
-            } else {
-                echo "<script>alert('Incorrect password.'); window.location.href='your_login_page.html';</script>";
-            }
-        } else {
-            echo "<script>alert('User not found.'); window.location.href='your_login_page.html';</script>";
+        .error {
+            color: red;
+            font-size: 0.9em;
+            margin-top: 5px;
         }
-        $stmt->close();
-    }
-}
-
-$conn->close();
-?>
+    </style>
 </head>
 
 <body>
@@ -149,8 +114,7 @@ $conn->close();
     </div>
 
     <div class="login-container">
-        <form id="loginForm" method="post" action="login_process.php">
-            <h2 class="mb-4 text-center">LOG IN</h2>
+        <form id="loginForm" method="post" action="login_process.php"> <h2 class="mb-4 text-center">LOG IN</h2>
             <div class="mb-3">
                 <label for="username" class="form-label">Student ID</label>
                 <input type="text" id="username" name="username" class="form-control" placeholder="Enter Here..." required>
@@ -182,7 +146,6 @@ $conn->close();
         });
 
 
-        //FOR SHOW PASSWORD =====
         function passFunction(){
             var a = document.getElementById("password");
             if (a.type === "password"){

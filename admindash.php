@@ -1,6 +1,20 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: fit4login.php");
+    exit();
+}
+
+if ($_SESSION['user_role'] !== 'admin') {
+    header("Location: DASHBOARDStud.php");
+    exit();
+}
+
+
+?>
+<?php
+
 $servername = "localhost";
 $username = "root";
 $password = "";
@@ -699,7 +713,10 @@ try {
           </div>
         </div>
             <a href="adminhelp.php">Help</a>
-            <a href="fit4login.php">Logout</a>
+            <a href="logout.php" class="nav-link">
+            <i class='bx bx-log-out icon'></i>
+            <span class="text nav-text">Logout</span>
+            </a>
         </div>
     </div>
 

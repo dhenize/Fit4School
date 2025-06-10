@@ -465,11 +465,6 @@ h5 {
 }
 
 
-
-
-
-
-/* Order item */
 .order-item {
   display: flex;
   align-items: center;
@@ -638,7 +633,7 @@ h5 {
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" data-dismiss="modal"> <a href="#" style=" color: #16423C;">NO</a></button>
-                    <button type="button" class="btn" style="background-color: #6A9C89; color: #FFFFFF; border-radius: 20px; width: 80px; font-weight: bold;"><a href="fit4login.php" >YES</a></button>
+                    <button type="button" class="btn" style="background-color: #6A9C89; color: #FFFFFF; border-radius: 20px; width: 80px; font-weight: bold;"><a href="logout.php" >YES</a></button>
                 </div>
             </div>
         </div>

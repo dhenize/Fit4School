@@ -1,3 +1,18 @@
+<?php
+session_start();
+
+if (!isset($_SESSION['loggedin']) || $_SESSION['loggedin'] !== true) {
+    header("Location: fit4login.php");
+    exit();
+}
+
+if ($_SESSION['user_role'] !== 'student') {
+    header("Location: admindash.php"); // Redirect to admin dashboard if not student
+    exit();
+}
+
+// Rest of your DASHBOARDStud.php code
+?>
 <!DOCTYPE html>
 <html lang = "en">
     <head>
@@ -28,9 +43,6 @@
                         <button class = "SD_btn" onclick="location.href='DASHBOARDStud.php'"><img src = "dashboard (4).png" class = "sd_icon" style = "padding-right: 10px;">Student Dashboard</button>
                     </div>
                     <div>
-                        <button class = "VS_btn" onclick="location.href='VIEW_SIZE_Stud.php'"><img src = "ruler (1).png" class = "vs_icon" style = "padding-right: 10px;">View Sizes</button>
-                    </div>
-                    <div>
                         <button class = "App_btn" onclick="location.href='APPOINTMENT_Stud.php'"><img src = "appointment (1).png" class = "app_icon" style = "padding-right: 10px;">Appointment</button>
                     </div>
                     <div>
@@ -51,7 +63,6 @@
                 </div>
             </div>
 
-            <!-- Logout Confirmation Modal -->
     <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="logoutModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
 
@@ -67,7 +78,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn" data-dismiss="modal"> <a href="#" style=" color: #16423C;">NO</a></button>
-                    <button type="button" class="btn" style="background-color: #6A9C89; color: #FFFFFF; border-radius: 20px; width: 80px; font-weight: bold;"><a href="fit4login.php" >YES</a></button>
+                    <button type="button" class="btn" style="background-color: #6A9C89; color: #FFFFFF; border-radius: 20px; width: 80px; font-weight: bold;"><a href="logout.php">YES</a></button>
                 </div>
             </div>
         </div>

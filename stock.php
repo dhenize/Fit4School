@@ -41,7 +41,10 @@ if ($conn->connect_error) {
                     </div>
                 </div>
                 <a href="adminhelp.php">Help</a>
-                <a href="fit4login.php">Logout</a>
+                <a href="logout.php" class="nav-link">
+                <i class='bx bx-log-out icon'></i>
+                <span class="text nav-text">Logout</span>
+                </a>
             </div>
         </div>
         <div class="archive">
@@ -183,7 +186,7 @@ if ($conn->connect_error) {
                 <span class="close2">×</span>
                 <form id="editItemForm">
                     <div class="image-container">
-                        <div class="image-input"><img id="editImagePreview" src="#" alt="Item Image Preview" style="display:none; max-width: 100px; max-height: 100px;"></div>
+                        <div class="image-input"><img id="editImagePreview" src="#" alt="Item Image Preview" style="display:none; max-width: 300px; max-height: 500px;"></div>
                         <label for="editImageUpload">Change Image</label>
                         <input type="file" id="editImageUpload" name="item_image_edit" accept="image/*">
                     </div>

@@ -483,7 +483,10 @@ try {
                 </div>
             </div>
             <a href="adminhelp.php">Help</a>
-            <a href="fit4login.php">Logout</a>
+            <a href="logout.php" class="nav-link">
+            <i class='bx bx-log-out icon'></i>
+            <span class="text nav-text">Logout</span>
+            </a>
         </div>
     </div>
 
@@ -512,7 +515,6 @@ try {
                 <a href="#" onclick="filterAppointments('All')">All</a>
                 <a href="#" onclick="filterAppointments('Ongoing')">Ongoing</a>
                 <a href="#" onclick="filterAppointments('Missed')">Missed</a>
-                <a href="#" onclick="filterAppointments('Done')">Done</a>
             </div>
         </div>
     </div>

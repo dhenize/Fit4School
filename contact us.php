@@ -119,7 +119,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 <a href="DASHBOARDStud.php">Dashboard</a>
                 <a href="Help-Std.php">Help</a>
                 <a href="contact us.php">Contact Us</a>
-                <a href="fit4login.php">Logout</a>
+                <a href="logout.php">Logout</a>
             </div>
         </div>
 
