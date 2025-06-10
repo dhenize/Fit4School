@@ -3,7 +3,7 @@ session_start();
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "fit4school";
+$dbname = "db_fit4school";
 
 $archivedAppointments = [];
 $error = '';

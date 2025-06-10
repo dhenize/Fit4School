@@ -115,7 +115,7 @@
     $servername = "localhost";
     $username = "root";
     $password = "";
-    $dbname = "fit4school";
+    $dbname = "db_fit4school";
 
     try {
         $pdo = new PDO("mysql:host=$servername;dbname=$dbname;charset=utf8mb4", $username, $password);
