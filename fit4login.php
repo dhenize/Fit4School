@@ -103,7 +103,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $email = $_POST["username"];
         $password = $_POST["password"];
 
-        $sql = "SELECT * FROM students WHERE email = ?";
+        $sql = "SELECT * FROM student WHERE email = ?";
         $stmt = $conn->prepare($sql);
         $stmt->bind_param("s", $email);
         $stmt->execute();
@@ -113,7 +113,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $row = $result->fetch_assoc();
 
             if (password_verify($password, $row["password"])) {
-                $admin_sql = "SELECT * FROM admins WHERE email = ?";
+                $admin_sql = "SELECT * FROM admin WHERE email = ?";
                 $admin_stmt = $conn->prepare($admin_sql);
                 $admin_stmt->bind_param("s", $email);
                 $admin_stmt->execute();
