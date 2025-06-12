@@ -51,7 +51,7 @@ body {
 }
 
 
-.SD_btn, .VS_btn, .App_btn, .TH_btn {
+.SD_btn, .App_btn, .TH_btn {
     display: flex;
     align-items: center;
     justify-content: start;
@@ -67,7 +67,7 @@ body {
 }
 
 
-.VS_btn, .App_btn, .TH_btn {
+.App_btn, .TH_btn {
     background-color: #16423C;
     color: #6A9C89;
     font-weight: bold;
@@ -76,21 +76,13 @@ body {
     border-radius: 5%;
 }
 
-.VS_btn:hover {
-    color: white;
-    background-color: #143833;
-} 
-.VS_btn:hover > .vs_icon{
-    content: url('ruler.png');
-}
-
 
 .App_btn:hover {
     color: white;
     background-color: #143833;
 }
 .App_btn:hover > .app_icon{
-    content: url('appointment.png');
+    content: url('Images/appointment.png');
 }
 
 
@@ -99,7 +91,7 @@ body {
     background-color: #143833;
 }
 .TH_btn:hover > .th_icon{
-    content: url('clock.png');
+    content: url('Images/clock.png');
 }
 
 

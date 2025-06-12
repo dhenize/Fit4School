@@ -1,131 +1,136 @@
 <?php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "db_fit4school";
+    $servername = "localhost";
+    $username = "root";
+    $password = "";
+    $dbname = "db_fit4school";
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+    $conn = new mysqli($servername, $username, $password, $dbname);
 
-if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error . " Please check your database credentials in stock.php.");
-}
+    if ($conn->connect_error) {
+        die("Connection failed: " . $conn->connect_error . " Please check your database credentials in stock.php.");
+    }
 ?>
+
+
+
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stocks</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
-    <link rel="stylesheet" href="stock.css"> <link rel="icon" href="Logo.png" type="image/x-icon">
-</head>
 
-<body style="overflow: hidden;">
-    <header>
-        <div class="logo">
-            <img src="Logo_Light.png" alt="Fit4School Logo">
-            <h1>Fit4School</h1>
-            <div class="links">
-                <div class="dropdown">
-                    <a class="dropbtn">Stocks
-                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
-                            <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z"/>
-                        </svg>
-                    </a>
-                    <div class="dropdown-content">
-                        <a href="admindash.php">Dashboard</a>
-                        <a href="appointments.php">Appointments</a>
-                        <a href="stock.php">Stocks</a>
-                        <a href="archive.php">Archive</a>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Stocks</title>
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+        <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+        <link rel="stylesheet" href="stock.css">
+        <link rel="icon" href="images/Logo.png" type="image/x-icon">
+    </head>
+
+    <body style="overflow: hidden;">
+        <header>
+            <div class="logo">
+                <img src="images/Logo_Light.png" alt="Fit4School Logo">
+                <h1>Fit4School</h1>
+                <div class="links">
+                    <div class="dropdown">
+                        <a class="dropbtn">Stocks
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-caret-down-fill" viewBox="0 0 16 16">
+                                <path d="M7.247 11.14 2.451 5.658C1.885 5.013 2.345 4 3.204 4h9.592a1 1 0 0 1 .753 1.659l-4.796 5.48a1 1 0 0 1-1.506 0z" />
+                            </svg>
+                        </a>
+                        <div class="dropdown-content">
+                            <a href="admindash.php">Dashboard</a>
+                            <a href="appointments.php">Appointments</a>
+                            <a href="stock.php">Stocks</a>
+                            <a href="archive.php">Archive</a>
+                        </div>
                     </div>
+                    <a href="adminhelp.php">Help</a>
+                    <a href="logout.php" class="nav-link">
+                        <i class='bx bx-log-out icon'></i>
+                        <span class="text nav-text">Logout</span>
+                    </a>
                 </div>
-                <a href="adminhelp.php">Help</a>
-                <a href="logout.php" class="nav-link">
-                <i class='bx bx-log-out icon'></i>
-                <span class="text nav-text">Logout</span>
-                </a>
             </div>
-        </div>
-        <div class="archive">
-            <h2>Manage Stocks</h2>
-        </div>
-
-        <div class="search-container">
-            <div class="search-bar">
-                <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Here...">
+            <div class="archive">
+                <h2>Manage Stocks</h2>
             </div>
 
-            <div class="buttons">
-                <button id="openPopup" class="btn-add">ADD</button>
+            <div class="search-container">
+                <div class="search-bar">
+                    <input type="text" id="searchInput" onkeyup="searchTable()" placeholder="Search Here...">
+                </div>
 
-                <div id="additems" class="popup1">
-                    <h2>Add Items</h2>
-                    <span class="close1">×</span>
-                    <form id="addItemForm">
-                        <div class="image-container">
-                            <div class="image-input"><img id="addImagePreview" src="#" alt="Image Preview" style="display:none; max-width: 100px; max-height: 100px;"></div>
-                            <label for="imageUpload">Add Image</label>
-                            <input type="file" id="imageUpload" name="item_image" accept="image/*">
-                        </div>
+                <div class="buttons">
+                    <button id="openPopup" class="btn-add">ADD</button>
 
-                        <div class="form-row1">
-                            <label for="itemName">ITEM NAME</label>
-                            <input type="text" id="itemName" name="item_name" placeholder="Enter Here..." required>
-                        </div>
-                        <div class="form-row2">
-                            <label for="price">PRICE</label>
-                            <input type="number" id="price" name="price" step="0.01" placeholder="Enter Here..." required>
-                        </div>
+                    <div id="additems" class="popup1">
+                        <h2>Add Items</h2>
+                        <span class="close1">×</span>
+                        <form id="addItemForm">
+                            <div class="image-container">
+                                <div class="image-input"><img id="addImagePreview" src="#" alt="Image Preview" style="display:none; max-width: 100px; max-height: 100px;"></div>
+                                <label for="imageUpload">Add Image</label>
+                                <input type="file" id="imageUpload" name="item_image" accept="image/*">
+                            </div>
 
-                        <div class="form-container">
-                            <h4>QUANTITY BY SIZES</h4>
-                            <div class="size-row">
-                                <label for="sizeXS">Extra Small (XS)</label>
-                                <input type="number" id="sizeXS" name="quantity_XS" min="0" value="0" data-size="XS">
+                            <div class="form-row1">
+                                <label for="itemName">ITEM NAME</label>
+                                <input type="text" id="itemName" name="item_name" placeholder="Enter Here..." required>
                             </div>
-                            <div class="size-row">
-                                <label for="sizeS">Small (S)</label>
-                                <input type="number" id="sizeS" name="quantity_S" min="0" value="0" data-size="S">
+                            <div class="form-row2">
+                                <label for="price">PRICE</label>
+                                <input type="number" id="price" name="price" step="0.01" placeholder="Enter Here..." required>
                             </div>
-                            <div class="size-row">
-                                <label for="sizeM">Medium (M)</label>
-                                <input type="number" id="sizeM" name="quantity_M" min="0" value="0" data-size="M">
+
+                            <div class="form-container">
+                                <h4>QUANTITY BY SIZES</h4>
+                                <div class="size-row">
+                                    <label for="sizeXS">Extra Small (XS)</label>
+                                    <input type="number" id="sizeXS" name="quantity_XS" min="0" value="0" data-size="XS">
+                                </div>
+                                <div class="size-row">
+                                    <label for="sizeS">Small (S)</label>
+                                    <input type="number" id="sizeS" name="quantity_S" min="0" value="0" data-size="S">
+                                </div>
+                                <div class="size-row">
+                                    <label for="sizeM">Medium (M)</label>
+                                    <input type="number" id="sizeM" name="quantity_M" min="0" value="0" data-size="M">
+                                </div>
+                                <div class="size-row">
+                                    <label for="sizeL">Large (L)</label>
+                                    <input type="number" id="sizeL" name="quantity_L" min="0" value="0" data-size="L">
+                                </div>
+                                <div class="size-row">
+                                    <label for="sizeXL">Extra Large (XL)</label>
+                                    <input type="number" id="sizeXL" name="quantity_XL" min="0" value="0" data-size="XL">
+                                </div>
+                                <div class="size-row">
+                                    <label for="sizeXXL">Extra x2 Large (XXL)</label>
+                                    <input type="number" id="sizeXXL" name="quantity_XXL" min="0" value="0" data-size="XXL">
+                                </div>
+                                <div class="button-container">
+                                    <button type="submit" class="save-btn">Save</button>
+                                </div>
                             </div>
-                            <div class="size-row">
-                                <label for="sizeL">Large (L)</label>
-                                <input type="number" id="sizeL" name="quantity_L" min="0" value="0" data-size="L">
-                            </div>
-                            <div class="size-row">
-                                <label for="sizeXL">Extra Large (XL)</label>
-                                <input type="number" id="sizeXL" name="quantity_XL" min="0" value="0" data-size="XL">
-                            </div>
-                            <div class="size-row">
-                                <label for="sizeXXL">Extra x2 Large (XXL)</label>
-                                <input type="number" id="sizeXXL" name="quantity_XXL" min="0" value="0" data-size="XXL">
-                            </div>
+                        </form>
+                    </div>
+
+                    <button id="deletePopup" class="btn-delete">DELETE</button>
+
+                    <div id="deletebtn" class="popup3">
+                        <h2>Warning</h2>
+                        <span class="close3">×</span>
+                        <form id="deleteItemForm">
+                            <p>Do you want to delete the selected items?</p>
                             <div class="button-container">
-                                <button type="submit" class="save-btn">Save</button>
+                                <button type="button" class="no-btn">NO</button>
+                                <button type="submit" class="yes-btn">YES</button>
                             </div>
-                        </div>
-                    </form>
+                        </form>
+                    </div>
+
                 </div>
-
-                <button id="deletePopup" class="btn-delete">DELETE</button>
-
-                <div id="deletebtn" class="popup3">
-                    <h2>Warning</h2>
-                    <span class="close3">×</span>
-                    <form id="deleteItemForm">
-                        <p>Do you want to delete the selected items?</p>
-                        <div class="button-container">
-                            <button type="button" class="no-btn">NO</button>
-                            <button type="submit" class="yes-btn">YES</button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
         </header>
 
         <div class="container-fluid">
@@ -146,13 +151,13 @@ if ($conn->connect_error) {
                             <tbody>
                                 <?php
                                 $sql = "SELECT item_id, item_name, price, SUM(quantity) AS total_stock
-                                        FROM inventory
-                                        GROUP BY item_name, price
-                                        ORDER BY item_name";
+                                                FROM inventory
+                                                GROUP BY item_name, price
+                                                ORDER BY item_name";
                                 $result = $conn->query($sql);
 
                                 if ($result->num_rows > 0) {
-                                    while($row = $result->fetch_assoc()) {
+                                    while ($row = $result->fetch_assoc()) {
                                         $full_item_name = htmlspecialchars($row["item_name"]);
 
                                         $imageFileName = strtolower(str_replace([' ', '(', ')', '-'], ['_', '', '', '_'], $row['item_name']));
@@ -246,7 +251,9 @@ if ($conn->connect_error) {
                     document.getElementById('addImagePreview').src = '';
                 });
                 if (closeBtn1) {
-                    closeBtn1.addEventListener('click', function() { this.parentElement.style.display = 'none'; });
+                    closeBtn1.addEventListener('click', function() {
+                        this.parentElement.style.display = 'none';
+                    });
                 }
 
                 document.getElementById('imageUpload').addEventListener('change', function(event) {
@@ -357,7 +364,9 @@ if ($conn->connect_error) {
                     });
                 });
                 if (closeBtn2) {
-                    closeBtn2.addEventListener('click', function() { this.parentElement.style.display = 'none'; });
+                    closeBtn2.addEventListener('click', function() {
+                        this.parentElement.style.display = 'none';
+                    });
                 }
 
                 document.getElementById('editImageUpload').addEventListener('change', function(event) {
@@ -435,10 +444,14 @@ if ($conn->connect_error) {
                     editItemsPopup.style.display = 'none';
                 });
                 if (closeBtn3) {
-                    closeBtn3.addEventListener('click', function() { this.parentElement.style.display = 'none'; });
+                    closeBtn3.addEventListener('click', function() {
+                        this.parentElement.style.display = 'none';
+                    });
                 }
                 if (noBtnDelete) {
-                    noBtnDelete.addEventListener('click', function() { deletePopup.style.display = 'none'; });
+                    noBtnDelete.addEventListener('click', function() {
+                        deletePopup.style.display = 'none';
+                    });
                 }
 
                 document.getElementById('deleteItemForm').addEventListener('submit', function(e) {
@@ -458,7 +471,9 @@ if ($conn->connect_error) {
                         type: 'POST',
                         contentType: 'application/json',
                         dataType: 'json',
-                        data: JSON.stringify({ item_names: selectedItems }),
+                        data: JSON.stringify({
+                            item_names: selectedItems
+                        }),
                         success: function(response) {
                             if (response.success) {
                                 alert(response.message);
@@ -501,5 +516,6 @@ if ($conn->connect_error) {
                     }
                 }
             </script>
-        </body>
-        </html>
+    </body>
+
+</html>

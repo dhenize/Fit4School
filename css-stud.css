@@ -16,7 +16,7 @@ body {
 }
 
 .card {
-    background: url('bg_login.jpg') no-repeat center center fixed;
+    background: url('Images/bg_login.jpg') no-repeat center center fixed;
     background-size: cover;
     background-position: center;
     border-radius: 20px;
