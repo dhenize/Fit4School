@@ -5,61 +5,16 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Verify Your Account</title>
-        <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="icon" href="images/Logo_Light.png" type="image/x-icon">
         
     <?php
         session_start();
 
-        // Database connection
-        $host = "localhost";
-        $dbname = "db_fit4school";
-        $username = "root";
-        $db_password = "";
-
-        try {
-            $conn = new PDO("mysql:host=$host;dbname=$dbname", $username, $db_password);
-            $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-        } catch(PDOException $e) {
-            die('<div class="alert alert-danger">Database connection failed.</div>');
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $otp = $_POST['otp'] ?? '';
-            $newPassword = $_POST['newPassword'] ?? '';
-            $confirmPassword = $_POST['confirmPassword'] ?? '';
-
-
-            if (!isset($_SESSION['otp'])) {
-                echo '<div class="alert alert-danger">OTP session expired.</div>';
-            } 
-            elseif ($_SESSION['otp'] != $otp) {
-                echo '<div class="alert alert-danger">Invalid OTP.</div>';
-            }
-
-            elseif ($newPassword !== $confirmPassword) {
-                echo '<div class="alert alert-danger">Passwords do not match.</div>';
-            }
-            else {
-                $hashedPassword = password_hash($newPassword, PASSWORD_DEFAULT);
-                $email = $_SESSION['reset_email'] ?? '';
-
-                try {
-                    $stmt = $conn->prepare("UPDATE student SET password = ? WHERE email = ?");
-                    $stmt->execute([$hashedPassword, $email]);
-
-                    if ($stmt->rowCount() > 0) {
-                        unset($_SESSION['otp'], $_SESSION['reset_email']);
-                        header("Location: fit4login.php?reset=success");
-                        exit();
-                    } else {
-                        echo '<div class="alert alert-warning">No changes made. Is the email correct?</div>';
-                    }
-                } catch(PDOException $e) {
-                    echo '<div class="alert alert-danger">Error: ' . $e->getMessage() . '</div>';
-                }
-            }
+        if (isset($_SESSION['status_message'])) {
+            echo '<div class="alert alert-' . $_SESSION['status_type'] . '">' . $_SESSION['status_message'] . '</div>';
+            unset($_SESSION['status_message']);
+            unset($_SESSION['status_type']);
         }
     ?>
 
@@ -200,7 +155,6 @@
                 margin-right: 5px;
             }
 
-            /* Mobile Small - 320px */
             @media (max-width: 320px) {
                 .verify-box {
                     padding: 20px;
@@ -234,7 +188,6 @@
                 }
             }
 
-            /* Mobile Medium - 375px */
             @media (min-width: 321px) and (max-width: 375px) {
                 .verify-box {
                     padding: 25px;
@@ -254,7 +207,6 @@
                 }
             }
 
-            /* Mobile Large - 425px */
             @media (min-width: 376px) and (max-width: 425px) {
                 .verify-box {
                     padding: 25px;
@@ -270,7 +222,6 @@
                 }
             }
 
-            /* Tablet - 768px */
             @media (min-width: 426px) and (max-width: 768px) {
                 .verify-box {
                     padding: 35px;
@@ -292,7 +243,6 @@
                 }
             }
 
-            /* Laptop - 1024px */
             @media (min-width: 769px) and (max-width: 1024px) {
                 .verify-box {
                     max-width: 500px;
@@ -309,14 +259,12 @@
                 }
             }
 
-            /* Laptop Large - 1440px */
             @media (min-width: 1025px) and (max-width: 1440px) {
                 .verify-box {
                     max-width: 450px;
                 }
             }
 
-            /* 4K - 2560px */
             @media (min-width: 2560px) {
                 .verify-container {
                     background-size: 100% 100%;
@@ -417,21 +365,17 @@
                 const confirmPasswordInput = document.getElementById('confirmPassword');
                 const verifyForm = document.getElementById('verifyForm');
                 
-                // Password requirements regex
                 const passwordRegex = /^(?=.*[A-Z])(?=.*[!@#$%^&*])(?=.*\d{2}).{8,}$/;
                 
-                // Real-time validation for OTP
                 otpInput.addEventListener('input', function() {
                     validateOTP();
                 });
                 
-                // Real-time validation for new password
                 newPasswordInput.addEventListener('input', function() {
                     validateNewPassword();
                     validatePasswordMatch();
                 });
-                
-                // Real-time validation for confirm password
+        
                 confirmPasswordInput.addEventListener('input', function() {
                     validatePasswordMatch();
                 });
@@ -491,22 +435,19 @@
                     }
                 }
                 
-                // Form submission validation
                 verifyForm.addEventListener('submit', function(event) {
                     const otp = otpInput.value.trim();
                     const password = newPasswordInput.value.trim();
                     const confirmPassword = confirmPasswordInput.value.trim();
                     let isValid = true;
                     
-                    // Reset previous error states
                     otpInput.classList.remove('is-invalid');
                     newPasswordInput.classList.remove('is-invalid');
                     confirmPasswordInput.classList.remove('is-invalid');
                     document.getElementById('otpError').textContent = '';
                     document.getElementById('newPasswordError').textContent = '';
                     document.getElementById('confirmPasswordError').textContent = '';
-                    
-                    // Validate OTP
+
                     if (otp === '') {
                         otpInput.classList.add('is-invalid');
                         document.getElementById('otpError').textContent = 'OTP is required';
@@ -517,7 +458,6 @@
                         isValid = false;
                     }
                     
-                    // Validate new password
                     if (password === '') {
                         newPasswordInput.classList.add('is-invalid');
                         document.getElementById('newPasswordError').textContent = 'New password is required';
@@ -527,8 +467,7 @@
                         document.getElementById('newPasswordError').textContent = 'Password must have: 1 capital letter, 1 special character, 2 numbers, and at least 8 characters';
                         isValid = false;
                     }
-                    
-                    // Validate password match
+
                     if (confirmPassword === '') {
                         confirmPasswordInput.classList.add('is-invalid');
                         document.getElementById('confirmPasswordError').textContent = 'Please confirm your password';
