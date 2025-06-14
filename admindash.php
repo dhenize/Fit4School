@@ -11,7 +11,6 @@
         exit();
     }
 
-
 ?>
 
 
@@ -22,6 +21,8 @@
     $password = "";
     $dbname = "db_fit4school";
 
+    // Initialize $pdo to null to avoid undefined variable warnings
+    $pdo = null; 
     $adminNameDisplay = 'Admin';
     $totalOrders = 0;
     $totalCustomers = 0;
@@ -41,6 +42,18 @@
         $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
         $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
 
+        if (isset($_GET['get_queue'])) {
+            $stmt = $pdo->prepare("SELECT queue_no FROM appointments WHERE remarks = 'Ongoing' ORDER BY queue_no ASC LIMIT 1");
+            $stmt->execute();
+            $queue_data = $stmt->fetch();
+
+            if ($queue_data) {
+                echo json_encode(['success' => true, 'number' => $queue_data['queue_no']]);
+            } else {
+                echo json_encode(['success' => false]);
+            }
+            exit();
+        }
 
         if (isset($_SESSION['admin_id'])) {
             $stmt = $pdo->prepare("SELECT email FROM admin WHERE admin_id = ?");
@@ -80,9 +93,9 @@
         $endDate = date('Y-m-t');
 
         $stmt = $pdo->prepare("SELECT SUM(d.quantity * i.price) AS total_earning
-                            FROM dump d
-                            JOIN inventory i ON d.item_id = i.item_id
-                            WHERE d.remarks = 'Done' AND d.date_of_app BETWEEN ? AND ?");
+                                FROM dump d
+                                JOIN inventory i ON d.item_id = i.item_id
+                                WHERE d.remarks = 'Done' AND d.date_of_app BETWEEN ? AND ?");
         $stmt->execute([$startDate, $endDate]);
         $totalEarnings = $stmt->fetchColumn() ?? 0;
 
@@ -97,11 +110,11 @@
 
         $today = date('Y-m-d');
         $stmt = $pdo->prepare("SELECT a.queue_no, a.time_of_app, s.fname, s.lname, s.crs_sec, s.student_id
-                            FROM appointments a
-                            JOIN student s ON a.student_id = s.student_id
-                            WHERE a.remarks = 'Ongoing' AND a.date_of_app = ?
-                            ORDER BY a.queue_no ASC
-                            LIMIT 1");
+                                FROM appointments a
+                                JOIN student s ON a.student_id = s.student_id
+                                WHERE a.remarks = 'Ongoing' AND a.date_of_app = ?
+                                ORDER BY a.queue_no ASC
+                                LIMIT 1");
         $stmt->execute([$today]);
         $nowServing = $stmt->fetch();
 
@@ -115,29 +128,29 @@
         }
 
         $stmt = $pdo->query("SELECT
-                                d.dump_id,
-                                d.app_id,
-                                d.date_of_app,
-                                d.time_of_app,
-                                s.fname,
-                                s.lname,
-                                s.student_id,
-                                s.crs_sec,
-                                GROUP_CONCAT(CONCAT(i.item_name, ' (', i.size, ') x', d.quantity, ' @₱', FORMAT(i.price, 2)) SEPARATOR '<br>') AS items_details,
-                                SUM(i.price * d.quantity) AS transaction_total
-                            FROM
-                                dump d
-                            JOIN
-                                student s ON d.stud_id = s.student_id
-                            JOIN
-                                inventory i ON d.item_id = i.item_id
-                            WHERE
-                                d.remarks = 'Done'
-                            GROUP BY
-                                d.app_id, d.dump_id, d.date_of_app, d.time_of_app, s.fname, s.lname, s.student_id, s.crs_sec
-                            ORDER BY
-                                d.date_created DESC
-                            LIMIT 5");
+                                    d.dump_id,
+                                    d.app_id,
+                                    d.date_of_app,
+                                    d.time_of_app,
+                                    s.fname,
+                                    s.lname,
+                                    s.student_id,
+                                    s.crs_sec,
+                                    GROUP_CONCAT(CONCAT(i.item_name, ' (', i.size, ') x', d.quantity, ' @₱', FORMAT(i.price, 2)) SEPARATOR '<br>') AS items_details,
+                                    SUM(i.price * d.quantity) AS transaction_total
+                                FROM
+                                    dump d
+                                JOIN
+                                    student s ON d.stud_id = s.student_id
+                                JOIN
+                                    inventory i ON d.item_id = i.item_id
+                                WHERE
+                                    d.remarks = 'Done'
+                                GROUP BY
+                                    d.app_id, d.dump_id, d.date_of_app, d.time_of_app, s.fname, s.lname, s.student_id, s.crs_sec
+                                ORDER BY
+                                    d.date_created DESC
+                                LIMIT 5");
         $recentTransactions = $stmt->fetchAll();
 
         foreach ($recentTransactions as &$transaction) {
@@ -151,19 +164,6 @@
     } catch (PDOException $e) {
         $error = "Database connection or query failed: " . $e->getMessage();
         error_log("ADMINDASH_DB_EXCEPTION: " . $error);
-    }
-
-    //QUEUE NUMBER CALLING FUNCTION
-    if (isset($_GET['get_queue'])) {
-        $result = $conn->query("SELECT queue_no FROM appointments WHERE remarks = 'Ongoing' LIMIT 1");
-
-        if ($row = $result->fetch_assoc()) {
-            echo json_encode(['success' => true, 'number' => $row['queue_no']]);
-        } else {
-            echo json_encode(['success' => false]);
-        }
-
-        exit();
     }
 ?>
 
